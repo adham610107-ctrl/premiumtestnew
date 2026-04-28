@@ -482,6 +482,33 @@ function createGreenSparkle(cx, cy) {
         }, 380);
     }, 1050);
 }
+
+    // === BOSQICH 4: PORTLASH + CLEANUP 400ms ICHIDA ===
+    setTimeout(() => {
+        ring.animate([
+            { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+            { transform: 'translate(-50%,-50%) scale(3)', opacity: 0 }
+        ], { duration: 350, easing: 'cubic-bezier(0,0.9,0.57,1)', fill: 'forwards' });
+
+        particles.forEach((spark, i) => {
+            const ang2 = Math.random() * Math.PI * 2;
+            const d2   = 60 + Math.random() * 100;
+            spark.animate([
+                { transform: 'translate(-50%,-50%) scale(1.0)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${Math.cos(ang2)*d2}px),calc(-50% + ${Math.sin(ang2)*d2}px)) scale(0)`, opacity: 0 }
+            ], { duration: 450 + Math.random()*150, easing: 'cubic-bezier(0,0.9,0.57,1)', fill: 'forwards' });
+        });
+
+        // MUNOQALA CLEANUP - MAKSIMAL 400ms
+        const cleanupTimer = setTimeout(() => {
+            if(ring.parentNode) ring.parentNode.removeChild(ring);
+            particles.forEach(p => {
+                if(p && p.parentNode) p.parentNode.removeChild(p);
+            });
+            particles = [];
+        }, 380);
+
+    }, 1050);
 function speakQuestion(idx) {
     if ('speechSynthesis' in window) { window.speechSynthesis.cancel(); const msg=new SpeechSynthesisUtterance(currentTest[idx].q); msg.lang='uz-UZ'; msg.rate=0.9; window.speechSynthesis.speak(msg); }
     else alert("Brauzer ovozli o'qishni qo'llab-quvvatlamaydi.");
@@ -1210,21 +1237,46 @@ function renderAllQuestions(){
 }
 function runSpin(idx){const spin=document.getElementById(`spin-${idx}`);if(!spin)return;let sc=0;const si=setInterval(()=>{spin.innerText=Math.floor(Math.random()*currentTest.length)+1;if(++sc>8){clearInterval(si);spin.innerText=idx+1;}},40);}
 function updateFocus(){
-    for(let i=0;i<currentTest.length;i++){const b=document.getElementById(`q-block-${i}`);if(b){if(i===currentIndex){b.classList.remove('blurred-q');b.classList.add('active-q');runSpin(i);}else{b.classList.remove('active-q');b.classList.add('blurred-q');}}}
+    for(let i=0;i<currentTest.length;i++){
+        const b=document.getElementById(`q-block-${i}`);
+        if(b){
+            if(i===currentIndex){
+                b.classList.remove('blurred-q');
+                b.classList.add('active-q');
+                runSpin(i);
+            } else {
+                b.classList.remove('active-q');
+                b.classList.add('blurred-q');
+            }
+        }
+    }
+    
     const bw=document.getElementById('boss-fight-warning');
     const isBoss=isExamMode&&currentTest.length>=5&&currentIndex>=currentTest.length-5;
+    
     if(isBoss){
         document.body.classList.add('boss-fight-mode');
-        // Dinamik intensivlik: oxirgi 5 savolda 1→5 ortib boradi
-        const bossStep = 5 - (currentTest.length - 1 - currentIndex); // 1..5
-        const intensity = Math.min(bossStep / 5, 1); // 0.2, 0.4, 0.6, 0.8, 1.0
-        document.body.style.setProperty('--boss-intensity', intensity.toFixed(2));
-        if(bw){bw.classList.remove('hidden');bw.innerText=`⚠ BOSS FIGHT · OXIRGI ${currentTest.length-currentIndex} TA ⚠`;}
+        
+        // DINAMIK INTENSIVLIK: 1 -> 5
+        const remainingQs = currentTest.length - currentIndex;
+        const bossStep = Math.max(1, Math.min(5, remainingQs));
+        const intensity = bossStep / 5;
+        
+        document.documentElement.style.setProperty('--boss-intensity', intensity.toFixed(2));
+        document.body.style.setProperty('--boss-glow', `0 0 ${20+intensity*40}px rgba(224,49,49,${0.3+intensity*0.4})`);
+        
+        if(bw){
+            bw.classList.remove('hidden');
+            bw.innerText=`⚠ BOSS FIGHT · OXIRGI ${remainingQs} TA ⚠`;
+            bw.style.textShadow = `0 0 ${10+intensity*20}px rgba(224,49,49,${0.5+intensity*0.5})`;
+        }
     } else {
         document.body.classList.remove('boss-fight-mode');
-        document.body.style.removeProperty('--boss-intensity');
+        document.documentElement.style.removeProperty('--boss-intensity');
+        document.body.style.removeProperty('--boss-glow');
         if(bw)bw.classList.add('hidden');
     }
+    
     scrollToActive();updateMap();
 }
 function scrollToActive(){const ab=document.getElementById(`q-block-${currentIndex}`);if(ab)ab.scrollIntoView({behavior:'smooth',block:'center'});const ad=document.getElementById(`dot-${currentIndex}`);if(ad)ad.scrollIntoView({behavior:'smooth',inline:'center'});}
