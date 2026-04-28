@@ -531,6 +531,16 @@
     </div>
 </div>
 
+<!-- Admin Broadcast Control -->
+<div class="admin-section" style="border-top:2px solid var(--warning); padding-top:16px;">
+    <h3 class="admin-section-title">📢 Barcha Userlarga Xabar (Broadcast)</h3>
+    <textarea id="admin-broadcast-text" class="premium-input" rows="3" placeholder="Xabar matni (barcha userlarga ko'rinadi)..." style="resize:vertical;height:80px;padding-top:12px;margin-bottom:10px;"></textarea>
+    <div style="display:flex;gap:10px;">
+        <button id="admin-broadcast-btn" class="btn-primary" style="flex:1;" onclick="sendAdminBroadcast()">📢 Yuborish</button>
+        <button class="btn-secondary" style="flex:1;" onclick="deleteBroadcast()">🗑 O'chirish</button>
+    </div>
+</div>    
+    
 <!-- FEEDBACK SCREEN -->
 <div id="feedback-screen" class="screen hidden">
     <div class="container main-content" style="padding-top:20px;">
